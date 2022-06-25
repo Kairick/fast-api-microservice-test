@@ -1,0 +1,60 @@
+version: "3.8"
+
+services:
+
+  nginx:
+    image: library/nginx:alpine
+    container_name: fastapi_nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+
+    depends_on:
+      - auth_service
+      - auth_db
+
+  auth_db:
+    image: library/postgres:12.0-alpine
+    container_name: auth_db
+    restart: always
+    environment:
+      - POSTGRES_DB
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_HOST
+      - POSTGRES_PORT=5432
+    env_file:
+      - .env
+
+    ports:
+      - 5432:5432
+    volumes:
+      - auth_pgdata:/var/lib/postgresql/data
+
+  auth_service:
+    container_name: auth_service
+    build: auth/.
+    command: uvicorn main:app --reload --host 0.0.0.0 --port 8000
+    ports:
+      - 8001:8000
+    depends_on:
+      - auth_db
+    env_file:
+      - .env
+    environment:
+      - SECRET
+      - ALGORITHM
+      - ACCESS_TOKEN_EXPIRE_MINUTES
+      - POSTGRES_DB
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_HOST
+      - POSTGRES_PORT=5432
+
+volumes:
+  auth_pgdata:
+
+networks:
+  default:
+    name: fastapi-network
