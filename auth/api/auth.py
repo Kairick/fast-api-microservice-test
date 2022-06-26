@@ -17,5 +17,8 @@ async def login(email: str, password: str, db: Session = Depends(get_db)):
 
 @router.get('/api/auth/validate_token/')
 async def validate_token(data: dict = Depends(decode_token)):
+    """Проверяет токен на валидность и возвращает uuid и
+     дату 'годности' токена
+     """
     return data
 

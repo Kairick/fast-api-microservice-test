@@ -1,14 +1,15 @@
 from sqlalchemy.orm import Session
 
 from models.users import User as ModelUser
-from schemas.users import UserCreate
 from passlib.hash import bcrypt
+from schemas.users import UserCreate
 
 
 async def create_user(db: Session, user: UserCreate) -> ModelUser:
     hashed_password = bcrypt.hash(user.password)
     db_user = ModelUser(email=user.email, first_name=user.first_name,
-                   last_name=user.last_name, hashed_password=hashed_password)
+                        last_name=user.last_name,
+                        hashed_password=hashed_password)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)

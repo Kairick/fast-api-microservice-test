@@ -58,10 +58,10 @@ async def decode_token(db: Session = Depends(get_db),
         user = db.query(ModelUser).get(payload['id'])
 
     except:
-        return {'success': False, 'uuid': None, 'expires': None}
+        return {'success': False, 'uuid': None, 'expired': None}
     if payload.get('exp') and payload.get('exp') < int(time.time()):
-        return {'success': False, 'uuid': None, 'expires': payload['exp']}
-    return {'success': True, 'uuid': user.uuid, 'expires': payload['exp']}
+        return {'success': False, 'uuid': None, 'expired': True}
+    return {'success': True, 'uuid': user.uuid, 'expired': False}
 
 
 def email_is_valid(email: str) -> bool:
