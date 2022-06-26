@@ -6,8 +6,8 @@ from api.utils import validate_token_data
 from db.crud.points import (
     create_new_point, bulk_create_points, get_points_from_db, patch_point,
 )
-from db.service import get_db, check_token
-from schemas.routes import PointBaseCreate, Point, PointBase
+from db.service import check_token, get_db
+from schemas.routes import PointBase, PointBaseCreate, Point
 
 router = APIRouter()
 

@@ -40,6 +40,7 @@ async def create_token(user: ModelUser) -> dict:
 
 async def authenticate_user(
         email: str, password: str, db: Session) -> Union[ModelUser, bool]:
+    """Аутентифицирует пользователя"""
     user = await get_user_by_email(db, email)
     if not user:
         return False

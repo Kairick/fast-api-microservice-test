@@ -4,8 +4,8 @@ from sqlalchemy.orm import Session
 
 from db.service import generate_points
 from models.routes import Point as ModelPoint
-from schemas.routes import Point as SchemePoint, PointBase
-from schemas.routes import PointBaseCreate
+from schemas.routes import Point as SchemePoint
+from schemas.routes import PointBase, PointBaseCreate
 
 
 async def create_new_point(db: Session, point: PointBaseCreate) -> SchemePoint:

@@ -22,7 +22,10 @@ async def create_new_route(db: Session, route: RouteCreate,
     if len(points) < 2:
         return None
     db.add(db_route)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        return None
     db.refresh(db_route)
     await generate_route(db, db_route, points)
     route = await get_from_raw_data([db_route])

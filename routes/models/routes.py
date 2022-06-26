@@ -1,4 +1,6 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, Float, Sequence
+from sqlalchemy import (
+    Column, ForeignKey, Integer, String, Float, Sequence, UniqueConstraint,
+)
 from sqlalchemy.orm import relationship
 
 from db.database import Base
@@ -21,6 +23,9 @@ class Route(Base):
     id = Column(Integer, primary_key=True, index=True)
     number = Column(Integer, comment='Уникальный номер маршрута')
     user_uuid = Column(String, comment='uuid пользователя, создавшего маршрут')
+    __table_args__ = (UniqueConstraint('user_uuid', 'number',
+                                       name='_user_uuid_number_uc'),
+                      )
 
 
 class RoutePoint(Base):

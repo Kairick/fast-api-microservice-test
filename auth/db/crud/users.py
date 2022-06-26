@@ -6,6 +6,7 @@ from schemas.users import UserCreate
 
 
 async def create_user(db: Session, user: UserCreate) -> ModelUser:
+    """Создает пользователя"""
     hashed_password = bcrypt.hash(user.password)
     db_user = ModelUser(email=user.email, first_name=user.first_name,
                         last_name=user.last_name,

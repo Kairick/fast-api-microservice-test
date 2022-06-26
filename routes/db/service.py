@@ -9,7 +9,8 @@ from sqlalchemy.orm import Session
 
 from api.analitic_utils.utils import get_total_route_distance
 from db.database import SessionLocal
-from models.routes import Point as ModelPoint, RoutePoint, Point
+from models.routes import Point as ModelPoint
+from models.routes import RoutePoint, Point
 from models.routes import Route as ModelRoute
 from schemas.report import Report
 from schemas.routes import PointWithNumber, RouteWithPoints

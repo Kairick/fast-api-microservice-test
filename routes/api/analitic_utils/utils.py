@@ -1,4 +1,4 @@
-from math import atan2, cos, radians, sin,  sqrt
+from math import atan2, cos, radians, sin, sqrt
 
 from schemas.routes import Point
 

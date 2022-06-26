@@ -22,7 +22,8 @@ async def create_route(route: RouteCreate, db: Session = Depends(get_db),
     if not route:
         raise HTTPException(
             status_code=401,
-            detail='Not enough correct points to create a route.'
+            detail=('Route number and user should be unique '
+                    'or not enough correct points to create a route.')
         )
     return route
 
