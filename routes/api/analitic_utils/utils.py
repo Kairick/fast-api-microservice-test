@@ -2,7 +2,7 @@ from math import atan2, cos, radians, sin, sqrt
 
 from schemas.routes import Point
 
-R = 6373.0
+EARTH_RADIUS = 6373.0
 
 
 async def get_total_route_distance(points: list[Point]) -> float:
@@ -16,17 +16,19 @@ async def get_total_route_distance(points: list[Point]) -> float:
 def get_point_distance(start: Point, finish: Point) -> float:
     """Считает расстояние между точками"""
 
-    lat1 = radians(start.latitude)
-    lon1 = radians(start.longitude)
-    lat2 = radians(finish.latitude)
-    lon2 = radians(finish.longitude)
+    lat_start = radians(start.latitude)
+    lon_start = radians(start.longitude)
+    lat_finish = radians(finish.latitude)
+    lon_finish = radians(finish.longitude)
 
-    dlon = lon2 - lon1
-    dlat = lat2 - lat1
+    lon_diff = lon_finish - lon_start
+    lat_diff = lat_finish - lat_start
 
-    a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
-    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+    coordinate_result = (sin(lat_diff / 2) ** 2
+                         + cos(lat_start) * cos(lat_finish) *
+                         sin(lon_diff / 2) ** 2)
+    result = 2 * atan2(sqrt(coordinate_result), sqrt(1 - coordinate_result))
 
-    distance = R * c
+    distance = EARTH_RADIUS * result
 
     return distance

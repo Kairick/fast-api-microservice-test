@@ -15,9 +15,9 @@ from schemas.users import User as SchemaUser
 
 OAUTH2SCHEME = security.OAuth2PasswordBearer('/api/auth/login/')
 
-SECRET = os.getenv("JWT_TOKEN", "Some_token")
-ALGORITHM = os.getenv("ALGORITHM", "HS256")
-ACCESS_TOKEN_EXPIRE_MINUTES = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 120)
+SECRET = os.environ.get("JWT_TOKEN", "Some_token")
+ALGORITHM = os.environ.get("ALGORITHM", "HS256")
+ACCESS_TOKEN_EXPIRE_MINUTES = os.environ.get("ACCESS_TOKEN_EXPIRE_MINUTES", 120)
 
 
 def get_db():
@@ -53,16 +53,16 @@ async def authenticate_user(
 async def decode_token(db: Session = Depends(get_db),
                        token: str = Depends(OAUTH2SCHEME)) -> dict:
     """Валидирует пользователя по токену и возвращает uuid пользователя"""
+    response = {'uuid': None, 'expired': False}
     try:
-        payload = jwt.decode(
-        token, os.getenv("JWT_TOKEN", "Some_token"), algorithms=[ALGORITHM])
+        payload = jwt.decode(token, SECRET, algorithms=[ALGORITHM])
         user = db.query(ModelUser).get(payload['id'])
-
+        response['uuid'] = user.uuid
     except:
-        return {'success': False, 'uuid': None, 'expired': None}
-    if payload.get('exp') and payload.get('exp') < int(time.time()):
-        return {'success': False, 'uuid': None, 'expired': True}
-    return {'success': True, 'uuid': user.uuid, 'expired': False}
+        return response
+    if payload.get('exp'):
+        response['expired'] = payload.get('exp') < int(time.time())
+    return response
 
 
 def email_is_valid(email: str) -> bool:

@@ -9,14 +9,16 @@ from sqlalchemy.orm import Session
 
 from api.analitic_utils.utils import get_total_route_distance
 from db.database import SessionLocal
-from models.routes import Point as ModelPoint
-from models.routes import RoutePoint, Point
-from models.routes import Route as ModelRoute
+from models.routes import Point, Route, RoutePoint
 from schemas.report import Report
 from schemas.routes import PointWithNumber, RouteWithPoints
 
 AUTH_URL = os.environ.get('AUTH_URL')
 OAUTH2SCHEME = security.OAuth2PasswordBearer('/api/auth/login/')
+
+MAX_ROUTE_LENGTH = 98
+LATITUDE_RANGE = (-89.9, 89.9)
+LONGITUDE_RANGE = (-179.9, 179.9)
 
 
 def get_db():
@@ -35,19 +37,19 @@ async def check_token(token: str = Depends(OAUTH2SCHEME)) -> dict:
             return await r.json()
 
 
-async def generate_points(count: int) -> list[ModelPoint]:
+async def generate_points(count: int) -> list[Point]:
     """Генерирует точки маршрута"""
     letters = string.ascii_lowercase
-    points = [ModelPoint(
-        latitude=random.uniform(-89.9, 89.9),
-        longitude=random.uniform(-179.9, 179.9),
+    points = [Point(
+        latitude=random.uniform(*LATITUDE_RANGE),
+        longitude=random.uniform(*LONGITUDE_RANGE),
         name=''.join(random.choice(letters)
                      for _ in range(random.randint(5, 9)))
     ) for _ in range(count)]
     return points
 
 
-async def get_from_raw_data(routes: list[ModelRoute]) -> list[RouteWithPoints]:
+async def get_from_raw_data(routes: list[Route]) -> list[RouteWithPoints]:
     """Преобразует модель в словарь с нужными полями"""
     result = []
     for route in routes:
@@ -77,11 +79,10 @@ def _get_points(route_points: list[RoutePoint]) -> list[PointWithNumber]:
     return sorted(result, key=lambda d: d.sequence_number)
 
 
-async def generate_route(db: Session, new_route: ModelRoute,
-                         points: list[ModelPoint]):
+async def generate_route(db: Session, new_route: Route, points: list[Point]):
     """Генерирует случайным образом точки маршрута и сохраняет в таблицу"""
     max_len = await _get_max_length(points)
-    new_points = db.query(ModelPoint).order_by(
+    new_points = db.query(Point).order_by(
         func.random()).limit(max_len).all()
     first_point = RoutePoint(sequence_number=1,
                              point_id=points[0].id, route_id=new_route.id)
@@ -99,16 +100,16 @@ async def generate_route(db: Session, new_route: ModelRoute,
 
 async def make_report(db: Session, uuid: str) -> Report:
     """Формирует отчет по пользователю"""
-    routes = db.query(ModelRoute).select_from(
-        ModelRoute
+    routes = db.query(Route).select_from(
+        Route
     ).join(RoutePoint).join(Point).filter(
-        ModelRoute.user_uuid == uuid
-    ).order_by(ModelRoute.number).all()
+        Route.user_uuid == uuid
+    ).order_by(Route.number).all()
     total_routes = len(routes)
     total_distance = 0
     for route in routes:
         total_distance += await get_total_route_distance(
-            [x.point for x in route.route_points])
+            [route_point.point for route_point in route.route_points])
     report = Report(total_routes=total_routes, total_distance=total_distance)
     return report
 
@@ -116,9 +117,9 @@ async def make_report(db: Session, uuid: str) -> Report:
 async def _get_max_length(points: list[Point]) -> int:
     """Возвращает максимальное количество точек в маршруте
 
-    Максимальное количество точек - 100
+    Максимальное количество точек - 100 (с учетом начальной и конечной точек)
     """
     latitude_len = abs(points[0].latitude - points[1].latitude)
     longitude_len = abs(points[0].longitude - points[1].longitude)
     max_len = latitude_len if latitude_len > longitude_len else longitude_len
-    return max_len if max_len < 100 else 100
+    return max_len if max_len < MAX_ROUTE_LENGTH else MAX_ROUTE_LENGTH
