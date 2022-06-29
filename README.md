@@ -66,6 +66,10 @@
    
 3. Запускаем проект командой docker-compose up -d
 
+4. Обновляем миграции командой docker-compose exec auth_service alembic upgrade head
+
+5. Обновляем миграции командой docker-compose exec main_service alembic upgrade head
+
 
 ### Структура проекта
 Проект состоит из двух приложений: приложение авторизации и основное приложение.

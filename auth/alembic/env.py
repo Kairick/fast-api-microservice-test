@@ -16,7 +16,7 @@ POSTGRES_USER = os.environ.get('POSTGRES_USER')
 POSTGRES_PASSWORD = os.environ.get('POSTGRES_PASSWORD')
 POSTGRES_DB = os.environ.get('POSTGRES_DB')
 POSTGRES_HOST = os.environ.get('POSTGRES_HOST')
-DB_PATH = f'postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:5433/{POSTGRES_DB}'
+DB_PATH = f'postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}/{POSTGRES_DB}'
 config = context.config
 config.set_main_option("sqlalchemy.url", DB_PATH)
 # section = config.config_ini_section
