@@ -31,9 +31,8 @@ class Route(Base):
 class RoutePoint(Base):
     """Таблица, связывающая маршруты и точки с дополнительным полем"""
     __tablename__ = 'route_point'
-    seq = Sequence('route_point_id_seq')
-    id = Column(Integer, seq, server_default=seq.next_value(),
-                primary_key=True)
+
+    id = Column(Integer, primary_key=True)
     route_id = Column(Integer, ForeignKey('routes.id'),
                       primary_key=True, comment='Связь с таблицей маршруты')
     point_id = Column(Integer, ForeignKey('points.id'),

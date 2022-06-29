@@ -9,7 +9,7 @@ from uuid import uuid4
 
 from passlib.hash import bcrypt
 # revision identifiers, used by Alembic.
-from sqlalchemy import table, column, String
+from sqlalchemy import column, String, table
 
 from alembic import op
 
